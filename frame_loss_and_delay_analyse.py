@@ -10,7 +10,7 @@ import os
 import sys
 import csv
 
-def analyze_fsn_dist_ver1(fsn_list, frame_no_list):
+def analyze_fsn_without_improvement(fsn_list, frame_no_list):
     fsnlistlen = len(fsn_list)
     if fsnlistlen == 0:
         return True
@@ -33,18 +33,17 @@ def analyze_fsn_dist_ver1(fsn_list, frame_no_list):
             cur_fsn = int(fsn_list[step])
 
         dist_fsn = cur_fsn - pre_fsn
-        if dist_fsn < 0:
+        if dist_fsn <= 0:
             dist_fsn = dist_fsn + 15
 
         pre_fsn = int(fsn_list[step])
         
         final_fsn = dist_fsn - 1
-        if final_fsn == 0:
-            step = step + 1
-        else:
+        if final_fsn > 0:
             lost_frames = lost_frames + final_fsn
             print frame_no_list[step] + ": " + str(final_fsn)
-            step = step + 1
+
+        step = step + 1
 
     if lost_frames > 0:
         print lost_frames
@@ -52,25 +51,8 @@ def analyze_fsn_dist_ver1(fsn_list, frame_no_list):
     else:
         return True
 
-def analyze_fsn_dist14(fsn_list):
-    fsnlistlen = len(fsn_list)
-    print fsn_list
-    seg = 0
-    segs = fsnlistlen / 15
-    nums = fsnlistlen % 15
-    while(seg < segs + 1):
-        dist = 14
-        firstindex = 15*seg
-        if firstindex + dist > fsnlistlen:
-            dist = nums - 1
-        lastindex = firstindex + dist
-        firstfsn = fsn_list[firstindex]
-        lastfsn = fsn_list[lastindex]
-        if int(firstfsn) + dist == int(lastfsn):
-            #In sequence
-            seg = seg + 1
-        else:
-            return False
+def analyze_fsn_with_improvement(fsn_list, frame_no_list):
+    # To be implemented
     return True
 
 def collect_fsn_and_frame_no(base_dir, file):
@@ -109,7 +91,7 @@ def analyze_csv_files(basedir, filelist ):
         if file != 'Hsdsch_per_connect_stat.csv' and file != 'Hsdsch_per_second_stat.csv':
         #if file.startswith('DschFrame'):
             fsn_list, frame_no_list = collect_fsn_and_frame_no(basedir, file)
-            result = analyze_fsn_dist_ver1(fsn_list, frame_no_list)
+            result = analyze_fsn_without_improvement(fsn_list, frame_no_list)
             if result == False:
                 print file
 
