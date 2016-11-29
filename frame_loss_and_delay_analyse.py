@@ -9,6 +9,7 @@
 import os
 import sys
 import csv
+import getopt
 
 from group_emulator import group_emulator
 from analysis_statistic import analysis_statistic
@@ -107,30 +108,78 @@ instance_group = group_emulator()
 instance_statistic = analysis_statistic()
 
 
-def analyze_csv_files(base_dir, file_list):
+def analyze_csv_files(analyze_dir, analyze_fsn, analyze_delay):
+    file_list = os.listdir(analyze_dir)
     for one_file in file_list:
         if one_file != 'Hsdsch_per_connect_stat.csv' and one_file != 'Hsdsch_per_second_stat.csv':
-            fsn_list, frame_no_list, time_stamp_list, drt_list = collect_frame_information(base_dir, one_file)
-            fsn_result = analyze_fsn_without_improvement(fsn_list, frame_no_list)
-            if fsn_result > 0:
-                instance_statistic.update_frame_loss_statistic(fsn_result)
-                print one_file
+            fsn_list, frame_no_list, time_stamp_list, drt_list = collect_frame_information(analyze_dir, one_file)
+            if analyze_fsn is True:
+                fsn_result = analyze_fsn_without_improvement(fsn_list, frame_no_list)
+                if fsn_result > 0:
+                    instance_statistic.update_frame_loss_statistic(fsn_result)
+                    print one_file
 
-            local_instance = delay_analyzer(instance_group, instance_statistic)
-            delay_result = local_instance.analyze_delay(time_stamp_list, drt_list, fsn_list, frame_no_list)
-            if delay_result != 0:
-                print "Delay detected in file " + one_file
-                instance_statistic.update_delay_statistic()
+            if analyze_delay is True:
+                local_instance = delay_analyzer(instance_group, instance_statistic)
+                delay_result = local_instance.analyze_delay(time_stamp_list, drt_list, fsn_list, frame_no_list)
+                if delay_result != 0:
+                    print "Delay detected in file " + one_file
+                    instance_statistic.update_delay_statistic()
+
+
+def parse_input_parameter(argv):
+    options = "hd:t:"
+    long_options = []
+    analyze_dir = ""
+    analyze_fsn = False
+    analyze_delay = False
+    print_help="python frame_loss_and_delay_analyse.py -d <analyze_folder> -t <analyze_type>\r\n" \
+                "Options:\r\n" \
+                "-d\r\n" \
+                "       directory to analyze\r\n" \
+                "-t\r\n" \
+                "       fsn or delay or both if not specified"
+
+    # Arguments not specified
+    if len(argv) < 2:
+        print print_help
+        sys.exit(2)
+
+    try:
+        opts, args = getopt.getopt(argv[1:], options, long_options)
+    except getopt.GetoptError:
+        print print_help
+        print
+        sys.exit(2)
+
+    for opt, arg in opts:
+        if opt == '-h':
+            print print_help
+        elif opt in ("-d", "--directory"):
+            analyze_dir=arg
+        elif opt in ("-t", "--type"):
+            if arg == "fsn":
+                analyze_fsn=True
+            elif arg == "delay":
+                analyze_delay = True
+
+    # Directory not specified
+    if analyze_dir == '':
+        print print_help
+        sys.exit(2)
+
+    # If option doesn't specify, check fsn and delay both by default
+    if analyze_fsn is False and  analyze_delay == False:
+        analyze_fsn = True
+        analyze_delay = True
+
+    return analyze_dir, analyze_fsn, analyze_delay
+
 
 def main():
-    args = sys.argv
-    args_len = len(args)
-    if args_len < 2:
-        print "Choose directory to analyze!!"
-    else:
-        file_list = os.listdir(args[1])
-        analyze_csv_files(args[1], file_list)
-        instance_statistic.show_statistic_result()
+    analyze_dir, analyze_fsn, analyze_delay = parse_input_parameter(sys.argv)
+    analyze_csv_files(analyze_dir, analyze_fsn, analyze_delay)
+    instance_statistic.show_statistic_result()
 
 
 if __name__ == "__main__":
