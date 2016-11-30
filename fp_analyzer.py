@@ -91,3 +91,48 @@ class delay_analyzer:
     def update_previous_time(self, current_drt, current_toa):
         self.previous_drt = current_drt
         self.previous_toa = current_toa
+
+
+def analyze_fsn_without_improvement(fsn_list, frame_no_list):
+    fsn_list_len = len(fsn_list)
+    if fsn_list_len == 0:
+        return 0
+    step = 0
+    pre_fsn = 0
+    cur_fsn = 0
+    dist_fsn = 0
+    lost_frames = 0
+    while step < fsn_list_len:
+        if step == 0:
+            pre_fsn = int(fsn_list[step])
+            step += 1
+            continue
+
+        if int(fsn_list[step]) == 0:
+            pre_fsn = int(fsn_list[step])
+            step += 1
+            continue
+        else:
+            cur_fsn = int(fsn_list[step])
+
+        dist_fsn = cur_fsn - pre_fsn
+        if dist_fsn <= 0:
+            dist_fsn += 15
+
+        pre_fsn = int(fsn_list[step])
+
+        final_fsn = dist_fsn - 1
+        if final_fsn > 0:
+            lost_frames += final_fsn
+            print frame_no_list[step] + ": " + str(final_fsn)
+
+        step += 1
+
+    if lost_frames > 0:
+        print "Total lost frames: " + str(lost_frames)
+    return lost_frames
+
+def analyze_fsn_with_improvement(fsn_list, frame_no_list):
+    # To be implemented
+    return True
+
