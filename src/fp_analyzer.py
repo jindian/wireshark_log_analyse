@@ -58,7 +58,7 @@ class delay_analyzer:
 
                 if delay_state == 2:
                     self.statistic.update_delay_buildup_severe_frame_no()
-                    #print frame_no_list[step] + ": " + str(data_delay)
+                    print frame_no_list[step] + ": " + str(data_delay)
             self.update_previous_time(current_drt, current_toa)
             step += 1
 
