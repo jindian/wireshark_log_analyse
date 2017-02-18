@@ -33,6 +33,8 @@ def collect_frame_information(base_dir, file):
         frame_no_index = 0
         drt_index = 0
         time_stamp_index = 0
+        hsfach_ind_index = 0
+
         for row in csv_reader:
             line = ','.join(row)
             column = line.split(',')
@@ -50,6 +52,9 @@ def collect_frame_information(base_dir, file):
                         type_index = cell_index
                     elif one_cell == 'fsn':
                         fsn_index = cell_index
+                    elif one_cell == 'fi':
+                        hsfach_ind_index = cell_index
+
                     cell_index += 1
             else:
                 if column[type_index] == 'DF type2' or column[type_index] == 'DF type1 336' or column[type_index] == 'DF type1 656':

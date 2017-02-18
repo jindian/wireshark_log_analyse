@@ -22,7 +22,9 @@ def parse_input_parameter(argv):
                  "-d, --directory\r\n" \
                  "       directory to analyze\r\n" \
                  "-t, --type\r\n" \
-                 "       fsn or delay or both if not specified"
+                 "       fsn or delay or both if not specified\r\n" \
+                 "-fi, --fach_indicator\r\n" \
+                 "       find hsfach connections"
 
     # Arguments not specified
     if len(argv) < 2:
