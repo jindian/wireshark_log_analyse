@@ -10,11 +10,12 @@ import sys
 
 
 def parse_input_parameter(argv):
-    options = "hd:t:"
-    long_options = ["help", "directory=", "type="]
+    options = "hd:t:fi:"
+    long_options = ["help", "directory=", "type=", "fach_indicator"]
     analyze_dir = ""
     analyze_fsn = False
     analyze_delay = False
+    find_hsfach_connections = False
     print_help = "python frame_loss_and_delay_analyse.py -d <analyze_folder> -t <analyze_type>\r\n" \
                  "Options:\r\n" \
                  "-h, --help\r\n" \
@@ -23,7 +24,7 @@ def parse_input_parameter(argv):
                  "       directory to analyze\r\n" \
                  "-t, --type\r\n" \
                  "       fsn or delay or both if not specified\r\n" \
-                 "-fi, --fach_indicator\r\n" \
+                 "-f, --fach_indicator\r\n" \
                  "       find hsfach connections"
 
     # Arguments not specified
@@ -44,19 +45,22 @@ def parse_input_parameter(argv):
         elif opt in ("-d", "--directory"):
             analyze_dir = arg
         elif opt in ("-t", "--type"):
-            if arg == "fsn":
+            if arg is "fsn":
                 analyze_fsn = True
-            elif arg == "delay":
+            elif arg is "delay":
                 analyze_delay = True
+        elif opt in ("-f", "--fach_indicator"):
+            find_hsfach_connections = True
 
     # Directory not specified
     if analyze_dir == '':
+        print "Directory not specified, select a directory and try again!!\n\r"
         print print_help
         sys.exit(3)
 
     # If option doesn't specify, check fsn and delay both by default
-    if analyze_fsn is False and analyze_delay == False:
+    if analyze_fsn is False and analyze_delay is False:
         analyze_fsn = True
         analyze_delay = True
 
-    return analyze_dir, analyze_fsn, analyze_delay
+    return analyze_dir, analyze_fsn, analyze_delay, find_hsfach_connections

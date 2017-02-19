@@ -17,6 +17,7 @@ from analysis_statistic import analysis_statistic
 import fp_analyzer
 from fp_analyzer import delay_analyzer
 import parse_command_line
+import  get_header_directory
 
 
 def collect_frame_information(base_dir, file):
@@ -91,7 +92,10 @@ def analyze_csv_files(analyze_dir, analyze_fsn, analyze_delay):
 
 
 def main():
-    analyze_dir, analyze_fsn, analyze_delay = parse_command_line.parse_input_parameter(sys.argv)
+    analyze_dir, analyze_fsn, analyze_delay, find_hsfach_connections = parse_command_line.parse_input_parameter(sys.argv)
+    if find_hsfach_connections is True:
+        get_header_directory.get_fi(analyze_dir)
+        return
     analyze_csv_files(analyze_dir, analyze_fsn, analyze_delay)
     instance_statistic.show_statistic_result()
 
