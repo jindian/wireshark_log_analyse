@@ -14,10 +14,11 @@ import csv
 
 from group_emulator import group_emulator
 from analysis_statistic import analysis_statistic
+from hspa_connection import hspa_connection
 import fp_analyzer
 from fp_analyzer import delay_analyzer
 import parse_command_line
-import  get_header_directory
+
 
 
 def collect_frame_information(base_dir, file):
@@ -58,7 +59,8 @@ def collect_frame_information(base_dir, file):
 
                     cell_index += 1
             else:
-                if column[type_index] == 'DF type2' or column[type_index] == 'DF type1 336' or column[type_index] == 'DF type1 656':
+                if column[type_index] == 'DF type2' or column[type_index] == 'DF type1 336' or \
+                                column[type_index] == 'DF type1 656':
                     frame_no_list.append(column[frame_no_index])
                     time_stamp_list.append(column[time_stamp_index])
                     fsn_list.append(column[fsn_index])
@@ -92,10 +94,14 @@ def analyze_csv_files(analyze_dir, analyze_fsn, analyze_delay):
 
 
 def main():
-    analyze_dir, analyze_fsn, analyze_delay, find_hsfach_connections = parse_command_line.parse_input_parameter(sys.argv)
+    analyze_dir, analyze_fsn, analyze_delay, find_hsfach_connections = \
+        parse_command_line.parse_input_parameter(sys.argv)
     if find_hsfach_connections is True:
-        get_header_directory.get_fi(analyze_dir)
+        print "find hsfach connections"
+        ins_conn = hspa_connection(analyze_dir)
+        ins_conn.get_hsfach_connections()
         return
+
     analyze_csv_files(analyze_dir, analyze_fsn, analyze_delay)
     instance_statistic.show_statistic_result()
 
