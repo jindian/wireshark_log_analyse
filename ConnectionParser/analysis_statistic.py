@@ -1,9 +1,34 @@
-########################################################################################################################
-# Anslysis statistic
-# Author: Feng Jin
-# Data: 2016.11.17
-#
-########################################################################################################################
+"""
+Class:
+            analysis_statistic
+Usage:
+            Statistic of HSDPA connections
+Interfaces:
+            update_delay_statistic      : update number of udp connections with delay detected
+            update_delay_packet_detail  : update packet number with different level of delay
+            update_delay_buildup_severe_frame_no
+                                        : update udp connections with delay buildup severe detected
+            update_frame_loss_statistic : update frame loss information
+            update_delay_average        : update average delay
+            show_statistic_result       :
+Variables:
+            delay_detected_udp_connections
+                                        : number of delay detected udp connections
+            delay_more_than_20_seconds_packet_no
+                                        : number of packets with delay over 20 seconds
+            delay_more_than_10_seconds_packet_no
+                                        : number of packets with delay over 10 seconds
+            delay_more_than_5_seconds_packet_no
+                                        : number of packets with delay over 5 seconds
+            delay_more_than_1_seconds_packet_no
+                                        : number of packets with delay over 1 seconds
+            delay_buildup_severe_frame_no
+                                        : number of frames with delay buildup detected
+            frame_loss_detected_udp_connections
+                                        : number of udp connections with frame loss detected
+            total_lost_frame_no         : total lost frame number
+            delay_average               : average delay
+"""
 
 
 class analysis_statistic:

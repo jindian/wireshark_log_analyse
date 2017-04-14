@@ -1,9 +1,17 @@
-"""
-HSDPA user
-one port mapping with a user
-"""
-
 from fp_analyzer import delay_analyzer
+
+
+"""
+Class:
+            hsdpa_user
+Usage:
+            One udp connection of user
+Interfaces:
+            N/A
+Variables:
+            bts_port                    : BTS port
+            rnc_port                    : RNC port
+"""
 
 
 class hsdpa_user(delay_analyzer):

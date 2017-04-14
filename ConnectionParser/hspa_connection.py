@@ -8,7 +8,7 @@ import csv
 Class:
             hspa_connection
 Usage:
-            Manager all udp connections
+            Manage all udp connections
 Interfaces:
             get_file_list               : get all udp connections of hsdpa
             get_hsfach_connections      : get hsfach udp connection only

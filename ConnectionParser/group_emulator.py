@@ -1,11 +1,28 @@
-########################################################################################################################
-# Group emulator
-# Author: Feng Jin
-# Data: 2016.11.17
-#
-########################################################################################################################
-
 from hsdpa_user import hsdpa_user
+
+
+"""
+Class:
+            group_emulator
+Usage:
+            Emulator of single RNC group
+Interfaces:
+            update_delay_average        : update average delay
+            check_delay_result          : check if delay exist
+            reset_delay_average         : reset average delay
+            reset_user_dict             : reset dictionary of user
+            add_user                    : add a user
+            find_user                   : find user with specified port pair
+Variables:
+            delay_average_milli_seconds : average delay in milli seconds
+            delay_average_micro_seconds : average delay in micro seconds
+            delay_build_up_threshold    : threshold of delay build up
+            delay_build_up_severe_threshold
+                                        : threshold of delay build up severe
+            port2user                   : dictionary of user with port pair as its key
+            statistics                  : object of statistic
+"""
+
 
 class group_emulator:
 

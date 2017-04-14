@@ -1,10 +1,3 @@
-########################################################################################################################
-# Module used to parse command line
-# Author: Feng Jin
-# Data: 2016.11.30
-#
-########################################################################################################################
-
 import getopt
 import sys
 
@@ -29,12 +22,27 @@ print_help = "python frame_loss_and_delay_analyse.py -d <analyze_folder> -t <ana
              "       find hsfach connections"
 
 
+"""
+Class:
+            command_line
+Usage:
+            Manage command line information
+Interfaces:
+            parse_input_parameter       : parse input parameters
+            has_option                  : check if specified option exist
+            get_dir                     : get directory to analyze
+            help                        : print usage of Connection Parser
+Variables:
+            dir                         : directory all csv file stored
+            option_bitmap               : bit map of option information
+"""
+
+
 class command_line:
     def __init__(self, argv):
         self.dir = ""
         self.option_bitmap = 0
         self.parse_input_parameter(argv)
-
 
     def parse_input_parameter(self, argv):
         options = "hd:t:fi:"
@@ -59,11 +67,11 @@ class command_line:
                 self.dir = arg
             elif opt in ("-t", "--type"):
                 if arg is "fsn":
-                    self.set_option(option_bit["fsn"])
+                    self.set_option("fsn")
                 elif arg is "delay":
-                    self.set_option(option_bit["delay"])
+                    self.set_option("delay")
             elif opt in ("-f", "--fach_indicator"):
-                self.set_option(option_bit["fach"])
+                self.set_option("fach")
 
         # Directory not specified
         if self.dir == '':
@@ -71,18 +79,38 @@ class command_line:
             self.help()
             sys.exit(3)
 
+        print "check option"
+        print str(self.option_bitmap)
         # If option doesn't specify, check fsn and delay both by default
-        if self.has_option(option_bit["fsn"]) is 0 and self.has_option(option_bit["delay"]) is 0:
-            self.set_option(option_bit["fsn"])
-            self.set_option(option_bit["delay"])
+        if self.has_option("fsn") is False and self.has_option("delay") is False:
+            self.set_option("fsn")
+            self.set_option("delay")
+            print str(self.option_bitmap)
 
         return
 
     def set_option(self, bit):
-        self.option_bitmap |= 1<bit
+        bit_index = 0
+        try:
+            bit_index = option_bit[bit]
+            self.option_bitmap |= 1 << bit_index
+        except KeyError:
+            print "No key value: " + bit
 
     def has_option(self, bit):
-        return (self.option_bitmap & 1<bit)
+        bit_index = 0
+        has_opt = False
+        try:
+            bit_index = option_bit[bit]
+            if self.option_bitmap & 1 << bit_index is not 0:
+                has_opt = True
+        except KeyError:
+            print "No Key Value: " + bit
+
+        return has_opt
+
+    def get_dir(self):
+        return self.dir
 
     def help(self):
         print print_help

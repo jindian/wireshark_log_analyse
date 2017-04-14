@@ -2,15 +2,33 @@
 
 """
 """
+
+"""
+Class:
+            delay_analyzer
+Usage:
+            Analyze frame delay
+Interfaces:
+            analyze_delay               : analyze delay
+            calculate_delay             : calculate delay
+            update_previous_time        : update previous DRT and TOA
+            drt_reset                   : reset previous DRT and TOA
+Variables:
+            delay_hns                   : delay in hundred nano second
+            previous_drt                : DRT of previous frame
+            previous_toa                : TOA of previous frame
+            first_frame_after_fsn_reset : bool value if the first frame after fsn reset
+            statistic                   : object of statistic
+"""
+
+
 class delay_analyzer:
 
     def __init__(self, instance_statistic):
         self.delay_hns = 0              # in hundred nano seconds: ms*10000
         self.previous_drt = 0
         self.previous_toa = 0
-        self.list_len = 0
         self.first_frame_after_fsn_reset = True
-        # self.group = instance_group
         self.statistic = instance_statistic
 
     def analyze_delay(self, time_stamp, drt, fsn, frame_no):
@@ -76,46 +94,63 @@ class delay_analyzer:
         self.previous_toa = 0
 
 
-def analyze_fsn_without_improvement(fsn_list, frame_no_list):
-    fsn_list_len = len(fsn_list)
-    if fsn_list_len == 0:
-        return 0
-    step = 0
-    pre_fsn = 0
-    cur_fsn = 0
-    dist_fsn = 0
-    lost_frames = 0
-    while step < fsn_list_len:
-        if step == 0:
-            pre_fsn = int(fsn_list[step])
-            step += 1
-            continue
+"""
+Class:
+            fsn_analyzer
+Usage:
+            Manage all udp connections
+Interfaces:
+            get_lost_frames             : get number of lost frames
+            analyze_fsn_without_improvement
+                                        : analyze fsn with elder algorithm
+            analyze_fsn_with_improvement
+                                        : analyze fsn with new algorithm
+Variables:
+            pre_fsn                     : frame sequence number of previous frame
+            lost_frames                 : number of lost frames
+            analyzed_frames             : frame number already analyzed
+"""
 
-        if int(fsn_list[step]) == 0:
-            pre_fsn = int(fsn_list[step])
-            step += 1
-            continue
+
+class fsn_analyzer:
+
+    def __init__(self):
+        self.pre_fsn = 0
+        self.lost_frames = 0
+        self.analyzed_frames = 0
+
+    def get_lost_frames(self):
+        return self.lost_frames
+
+    def analyze_fsn_without_improvement(self, fsn, frame_no):
+        if self.analyzed_frames == 0:
+            self.pre_fsn = int(fsn)
+            self.analyzed_frames += 1
+            return
+
+        cur_fsn = 0
+        if int(fsn) == 0:
+            self.pre_fsn = int(fsn)
+            self.analyzed_frames += 1
+            return
         else:
-            cur_fsn = int(fsn_list[step])
+            cur_fsn = int(fsn)
 
-        dist_fsn = cur_fsn - pre_fsn
+        dist_fsn = cur_fsn - self.pre_fsn
         if dist_fsn <= 0:
             dist_fsn += 15
 
-        pre_fsn = int(fsn_list[step])
+        self.pre_fsn = int(fsn)
 
         final_fsn = dist_fsn - 1
         if final_fsn > 0:
-            lost_frames += final_fsn
-            print frame_no_list[step] + ": " + str(final_fsn)
+            self.lost_frames += final_fsn
+            print "Frame loss detected at FrameNo: " + frame_no
 
-        step += 1
+        self.analyzed_frames += 1
+        return
 
-    if lost_frames > 0:
-        print "Total lost frames: " + str(lost_frames)
-    return lost_frames
-
-def analyze_fsn_with_improvement(fsn_list, frame_no_list):
-    # To be implemented
-    return True
+    def analyze_fsn_with_improvement(self, fsn_list, frame_no_list):
+        # To be implemented
+        return True
 
