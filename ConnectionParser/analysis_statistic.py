@@ -7,6 +7,7 @@
 
 
 class analysis_statistic:
+
     def __init__(self):
         self.delay_detected_udp_connections = 0
         self.delay_more_than_20_seconds_packet_no = 0
@@ -16,6 +17,7 @@ class analysis_statistic:
         self.delay_buildup_severe_frame_no = 0
         self.frame_loss_detected_udp_connections = 0
         self.total_lost_frame_no = 0
+        self.delay_average = 0
 
     def update_delay_statistic(self):
         self.delay_detected_udp_connections += 1
@@ -33,6 +35,9 @@ class analysis_statistic:
         self.frame_loss_detected_udp_connections += 1
         self.total_lost_frame_no += lost_frame_no
 
+    def update_delay_average(self, delay_average):
+        self.delay_average += delay_average
+
     def show_statistic_result(self):
         print "#############################################################################"
         print "Frame loss detected udp connection no    : " + str(self.frame_loss_detected_udp_connections)
@@ -43,4 +48,5 @@ class analysis_statistic:
         print "Delay over 10 seconds packet no          : " + str(self.delay_more_than_10_seconds_packet_no)
         print "Delay over 5 seconds packet no           : " + str(self.delay_more_than_5_seconds_packet_no)
         print "Delay over 1 seconds packet no           : " + str(self.delay_more_than_1_seconds_packet_no)
+        print "Delay average                            : " + str(self.delay_average)
         print "#############################################################################"
