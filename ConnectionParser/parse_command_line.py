@@ -66,9 +66,9 @@ class command_line:
             elif opt in ("-d", "--directory"):
                 self.dir = arg
             elif opt in ("-t", "--type"):
-                if arg is "fsn":
+                if arg == "fsn":
                     self.set_option("fsn")
-                elif arg is "delay":
+                elif arg == "delay":
                     self.set_option("delay")
             elif opt in ("-f", "--fach_indicator"):
                 self.set_option("fach")
@@ -79,13 +79,12 @@ class command_line:
             self.help()
             sys.exit(3)
 
-        print "check option"
-        print str(self.option_bitmap)
+        # print "{0:b}".format(self.option_bitmap)
         # If option doesn't specify, check fsn and delay both by default
         if self.has_option("fsn") is False and self.has_option("delay") is False:
             self.set_option("fsn")
             self.set_option("delay")
-            print str(self.option_bitmap)
+            # print "{0:b}".format(self.option_bitmap)
 
         return
 
