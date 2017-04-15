@@ -7,7 +7,8 @@ bit of option
 option_bit = {
     "fsn": 0,
     "delay": 1,
-    "fach": 2
+    "fach": 2,
+    "merge": 3
 }
 
 print_help = "python frame_loss_and_delay_analyse.py -d <analyze_folder> -t <analyze_type>\r\n" \
@@ -19,7 +20,9 @@ print_help = "python frame_loss_and_delay_analyse.py -d <analyze_folder> -t <ana
              "-t, --type\r\n" \
              "       fsn or delay or both if not specified\r\n" \
              "-f, --fach_indicator\r\n" \
-             "       find hsfach connections"
+             "       find hsfach connections\r\n" \
+             "-m, --merge_hsdpa\r\n" \
+             "       merge all hsdpa data"
 
 
 """
@@ -45,8 +48,8 @@ class command_line:
         self.parse_input_parameter(argv)
 
     def parse_input_parameter(self, argv):
-        options = "hd:t:fi:"
-        long_options = ["help", "directory=", "type=", "fach_indicator"]
+        options = "hd:t:f:mi:"
+        long_options = ["help", "directory=", "type=", "fach_indicator", "merge_hsdpa"]
 
         # Arguments not specified
         if len(argv) < 2:
@@ -72,6 +75,8 @@ class command_line:
                     self.set_option("delay")
             elif opt in ("-f", "--fach_indicator"):
                 self.set_option("fach")
+            elif opt in ("-m", "--merge_hsdpa"):
+                self.set_option("merge")
 
         # Directory not specified
         if self.dir == '':
@@ -79,7 +84,6 @@ class command_line:
             self.help()
             sys.exit(3)
 
-        # print "{0:b}".format(self.option_bitmap)
         # If option doesn't specify, check fsn and delay both by default
         if self.has_option("fsn") is False and self.has_option("delay") is False:
             self.set_option("fsn")

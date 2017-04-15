@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
-"""
-"""
+import analysis_output
 
 """
 Class:
@@ -145,7 +144,7 @@ class fsn_analyzer:
         final_fsn = dist_fsn - 1
         if final_fsn > 0:
             self.lost_frames += final_fsn
-            print "Frame loss detected at FrameNo: " + frame_no
+            analysis_output.write_analysis("FrameNo: " + frame_no + " Lost Frames: " + str(final_fsn))
 
         self.analyzed_frames += 1
         return

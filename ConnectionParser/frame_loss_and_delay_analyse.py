@@ -11,6 +11,7 @@ from analysis_statistic import analysis_statistic
 from hspa_connection import hspa_connection
 from fp_analyzer import fsn_analyzer
 from parse_command_line import command_line
+import analysis_output
 
 instance_statistic = analysis_statistic()
 instance_group = group_emulator(instance_statistic)
@@ -30,7 +31,9 @@ def fsn_analyze(ins_conn):
 
         lost_frames = fsn_helper.get_lost_frames()
         if lost_frames > 0:
+            analysis_output.write_analysis(__file)
             instance_statistic.update_frame_loss_statistic(lost_frames)
+
 
 def delay_analyze(ins_conn):
     file_list = ins_conn.get_file_list()
@@ -57,9 +60,14 @@ def delay_analyze(ins_conn):
 
 def main():
     cmd = command_line(sys.argv)
+    analysis_output.output_open()
     ins_conn = hspa_connection(cmd.get_dir())
     if cmd.has_option("fach") is True:
         ins_conn.get_hsfach_connections()
+        return
+
+    if cmd.has_option("merge") is True:
+        ins_conn.merge_hsdpa_connections()
         return
 
     if cmd.has_option("fsn") is True:
@@ -69,6 +77,7 @@ def main():
         delay_analyze(ins_conn)
 
     instance_statistic.show_statistic_result()
+    analysis_output.output_close()
 
 
 if __name__ == "__main__":

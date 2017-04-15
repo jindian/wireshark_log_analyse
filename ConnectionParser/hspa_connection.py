@@ -35,7 +35,7 @@ class hspa_connection:
         for file in self.file_list:
             file_len = len(file)
             if (file.find("type2", 0, file_len) is not -1) or (file.find("type1", 0, file_len) is not -1) \
-                    or (file.find("all_hsdpa", 0, file_len is not -1)):
+                    or (file.find("all_hsdpa", 0, file_len) is not -1):
                 self.hsdpa_file_list.append(file)
 
         self.generate_header_directory()
