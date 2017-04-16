@@ -1,17 +1,7 @@
 import getopt
 import sys
 
-"""
-bit of option
-"""
-option_bit = {
-    "fsn": 0,
-    "delay": 1,
-    "fach": 2,
-    "merge": 3
-}
-
-print_help = "python frame_loss_and_delay_analyse.py -d <analyze_folder> -t <analyze_type>\r\n" \
+print_help = "frame_loss_and_delay_analyse.py -d <analyze_folder> [Options]\r\n" \
              "Options:\r\n" \
              "-h, --help\r\n" \
              "       usage of this script\r\n" \
@@ -42,14 +32,16 @@ Variables:
 
 
 class command_line:
-    def __init__(self, argv):
+    def __init__(self):
         self.dir = ""
         self.option_bitmap = 0
-        self.parse_input_parameter(argv)
+        self.option_dict = {}
+        self.options = ""
+        self.options_long = []
 
     def parse_input_parameter(self, argv):
-        options = "hd:t:f:mi:"
-        long_options = ["help", "directory=", "type=", "fach_indicator", "merge_hsdpa"]
+        # options = "hd:t:fm"
+        # long_options = ["help", "directory=", "type=", "fach_indicator", "merge_hsdpa"]
 
         # Arguments not specified
         if len(argv) < 2:
@@ -57,7 +49,7 @@ class command_line:
             sys.exit(1)
 
         try:
-            opts, args = getopt.getopt(argv[1:], options, long_options)
+            opts, args = getopt.getopt(argv[1:], self.options, self.options_long)
         except getopt.GetoptError:
             self.help()
             sys.exit(2)
@@ -92,6 +84,18 @@ class command_line:
 
         return
 
+    def register_option(self, option_obj):
+        option_index = len(self.option_dict)
+        self.option_dict[option_obj.get_option_name()] = option_index
+        option_short, option_long = option_obj.get_option()
+        if len(option_obj.get_option_args()) is 0:
+            self.options += option_short
+            self.options_long.append(option_long)
+        else:
+            self.options += (option_short + ":")
+            self.options_long.append(option_long + "=")
+        return
+
     def set_option(self, bit):
         bit_index = 0
         try:
@@ -116,4 +120,37 @@ class command_line:
         return self.dir
 
     def help(self):
+        print print_help
+
+
+class single_option:
+    def __init__(self):
+        self.option_name = ""
+        self.option_short = ""
+        self.option_long = ""
+        self.option_desc = ""
+        self.option_args = ()
+
+    def get_option_name(self):
+        return self.option_name
+
+    def get_option(self):
+        return self.option_short, self.option_long
+
+    def get_option_args(self):
+        return self.option_args
+
+    def option_action(self):
+        return
+
+
+class help(single_option):
+    def __init__(self):
+        single_option.__init__(self)
+        self.option_name = "help"
+        self.option_short = "h"
+        self.option_long = "help"
+        self.option_desc = "usage of wireshark log analyse"
+
+    def option_action(self):
         print print_help

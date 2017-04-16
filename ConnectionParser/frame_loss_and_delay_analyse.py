@@ -10,7 +10,7 @@ from group_emulator import group_emulator
 from analysis_statistic import analysis_statistic
 from hspa_connection import hspa_connection
 from fp_analyzer import fsn_analyzer
-from parse_command_line import command_line
+from parse_command_line import *
 import analysis_output
 
 instance_statistic = analysis_statistic()
@@ -59,7 +59,11 @@ def delay_analyze(ins_conn):
 
 
 def main():
-    cmd = command_line(sys.argv)
+    cmd = command_line()
+    help_obj = help()
+    cmd.register_option(help_obj)
+    cmd.parse_input_parameter(sys.argv)
+    return
     analysis_output.output_open()
     ins_conn = hspa_connection(cmd.get_dir())
     if cmd.has_option("fach") is True:
