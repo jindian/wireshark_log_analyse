@@ -35,9 +35,7 @@ class command_line:
     def __init__(self):
         self.dir = ""
         self.option_bitmap = 0
-        self.option_dict = {}
-        self.options = ""
-        self.options_long = []
+        self.option_obj_list = []
 
     def parse_input_parameter(self, argv):
         # options = "hd:t:fm"
@@ -85,16 +83,7 @@ class command_line:
         return
 
     def register_option(self, option_obj):
-        option_index = len(self.option_dict)
-        self.option_dict[option_obj.get_option_name()] = option_index
-        option_short, option_long = option_obj.get_option()
-        if len(option_obj.get_option_args()) is 0:
-            self.options += option_short
-            self.options_long.append(option_long)
-        else:
-            self.options += (option_short + ":")
-            self.options_long.append(option_long + "=")
-        return
+        self.option_obj_list.append(option_obj)
 
     def set_option(self, bit):
         bit_index = 0
