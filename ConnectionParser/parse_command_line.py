@@ -38,8 +38,8 @@ class command_line:
         self.option_obj_list = []
 
     def parse_input_parameter(self, argv):
-        # options = "hd:t:fm"
-        # long_options = ["help", "directory=", "type=", "fach_indicator", "merge_hsdpa"]
+        # generate options list to parse
+        options, long_options = self.generate_options()
 
         # Arguments not specified
         if len(argv) < 2:
@@ -47,14 +47,14 @@ class command_line:
             sys.exit(1)
 
         try:
-            opts, args = getopt.getopt(argv[1:], self.options, self.options_long)
+            opts, args = getopt.getopt(argv[1:], options, long_options)
         except getopt.GetoptError:
             self.help()
             sys.exit(2)
 
         for opt, arg in opts:
             if opt in ("-h", "--help"):
-                self.help()
+                self.option_obj_list["help"].option_action()
                 sys.exit(0)
             elif opt in ("-d", "--directory"):
                 self.dir = arg
@@ -84,6 +84,19 @@ class command_line:
 
     def register_option(self, option_obj):
         self.option_obj_list.append(option_obj)
+
+    def generate_options(self):
+        options = ""
+        long_options = []
+        for obj in self.option_obj_list:
+            option_short, option_long = obj.get_option()
+            if len(obj.get_option_args()) is 0:
+                options += option_short
+                long_options.append(option_long)
+            else:
+                options += (option_short + ":")
+                long_options.append(option_long + "=")
+        return options, long_options
 
     def set_option(self, bit):
         bit_index = 0
@@ -118,7 +131,7 @@ class single_option:
         self.option_short = ""
         self.option_long = ""
         self.option_desc = ""
-        self.option_args = ()
+        self.option_args = []
 
     def get_option_name(self):
         return self.option_name
