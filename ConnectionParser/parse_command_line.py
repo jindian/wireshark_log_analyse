@@ -34,8 +34,11 @@ Variables:
 class command_line:
     def __init__(self):
         self.dir = ""
-        self.option_bitmap = 0
+        # It's possible option_list_dict and option_obj_list are not equal
+        # because of argument of option exist
+        self.option_list_dict = {}
         self.option_obj_list = []
+        self.option_bitmap = 0
 
     def parse_input_parameter(self, argv):
         # generate options list to parse
@@ -43,42 +46,34 @@ class command_line:
 
         # Arguments not specified
         if len(argv) < 2:
-            self.help()
+            self.option_obj_list[0].option_action(self, "")
             sys.exit(1)
 
         try:
             opts, args = getopt.getopt(argv[1:], options, long_options)
         except getopt.GetoptError:
-            self.help()
+            self.option_obj_list[0].option_action(self, "")
             sys.exit(2)
 
         for opt, arg in opts:
-            if opt in ("-h", "--help"):
-                self.option_obj_list["help"].option_action()
-                sys.exit(0)
-            elif opt in ("-d", "--directory"):
-                self.dir = arg
-            elif opt in ("-t", "--type"):
-                if arg == "fsn":
-                    self.set_option("fsn")
-                elif arg == "delay":
-                    self.set_option("delay")
-            elif opt in ("-f", "--fach_indicator"):
-                self.set_option("fach")
-            elif opt in ("-m", "--merge_hsdpa"):
-                self.set_option("merge")
+            for obj in self.option_obj_list:
+                opt_short, opt_long = obj.get_option()
+                cmd_opt_short = "-" + opt_short
+                cmd_opt_long = "--" + opt_long
+                if opt in (cmd_opt_short, cmd_opt_long):
+                    obj.option_action(self, arg)
 
         # Directory not specified
         if self.dir == '':
             print "Directory not specified, select a directory and try again!!\n\r"
-            self.help()
+            self.option_obj_list[0].option_action(self, "")
             sys.exit(3)
 
         # If option doesn't specify, check fsn and delay both by default
         if self.has_option("fsn") is False and self.has_option("delay") is False:
             self.set_option("fsn")
             self.set_option("delay")
-            # print "{0:b}".format(self.option_bitmap)
+            print "{0:b}".format(self.option_bitmap)
 
         return
 
@@ -88,41 +83,51 @@ class command_line:
     def generate_options(self):
         options = ""
         long_options = []
+        dict_index = 0
         for obj in self.option_obj_list:
             option_short, option_long = obj.get_option()
-            if len(obj.get_option_args()) is 0:
+            args_list = obj.get_option_args()
+            if len(args_list) is 0:
                 options += option_short
                 long_options.append(option_long)
+                self.option_list_dict[obj.get_option_name()] = dict_index
+                dict_index += 1
             else:
                 options += (option_short + ":")
                 long_options.append(option_long + "=")
+                for arg in args_list:
+                    self.option_list_dict[arg] = dict_index
+                    dict_index +=1
+
         return options, long_options
 
-    def set_option(self, bit):
-        bit_index = 0
+    def query_option_bit_index(self, bit):
+        bit_index = -1
         try:
-            bit_index = option_bit[bit]
-            self.option_bitmap |= 1 << bit_index
+            bit_index = self.option_list_dict[bit]
         except KeyError:
-            print "No key value: " + bit
+            print "No option with key <" + bit + "> exist"
+
+        return bit_index
+
+    def set_option(self, bit):
+        bit_index = self.query_option_bit_index(bit)
+        if bit_index is not -1:
+            self.option_bitmap |= 1 << bit_index
 
     def has_option(self, bit):
-        bit_index = 0
+        bit_index = self.query_option_bit_index(bit)
         has_opt = False
-        try:
-            bit_index = option_bit[bit]
-            if self.option_bitmap & 1 << bit_index is not 0:
-                has_opt = True
-        except KeyError:
-            print "No Key Value: " + bit
+        if self.option_bitmap & 1 << bit_index is not 0:
+            has_opt = True
 
         return has_opt
 
+    def set_dir(self, dir):
+        self.dir = dir
+
     def get_dir(self):
         return self.dir
-
-    def help(self):
-        print print_help
 
 
 class single_option:
@@ -142,11 +147,11 @@ class single_option:
     def get_option_args(self):
         return self.option_args
 
-    def option_action(self):
+    def option_action(self, cmd_obj, arg):
         return
 
 
-class help(single_option):
+class option_help(single_option):
     def __init__(self):
         single_option.__init__(self)
         self.option_name = "help"
@@ -154,5 +159,62 @@ class help(single_option):
         self.option_long = "help"
         self.option_desc = "usage of wireshark log analyse"
 
-    def option_action(self):
+    def option_action(self, cmd_obj, arg):
         print print_help
+        sys.exit(0)
+
+
+class option_directory(single_option):
+    def __init__(self):
+        single_option.__init__(self)
+        self.option_name = "directory"
+        self.option_short = "d"
+        self.option_long = "directory"
+        self.option_desc = "directory to analyze"
+
+    def option_action(self, cmd_obj, arg):
+        print "option_action of directory: " + arg
+        cmd_obj.set_dir(arg)
+
+
+class option_fach_indicator(single_option):
+    def __init__(self):
+        single_option.__init__(self)
+        self.option_name = "fach_indicator"
+        self.option_short = "f"
+        self.option_long = "fach_indicator"
+        self.option_desc = "find hsfach connections"
+
+    def option_action(self, cmd_obj, arg):
+        cmd_obj.set_option("fach_indicator")
+
+
+class option_merge_hsdpa(single_option):
+    def __init__(self):
+        single_option.__init__(self)
+        self.option_name = "merge_hsdpa"
+        self.option_short = "m"
+        self.option_long = "merge_hsdpa"
+        self.option_desc = "merge all hsdpa data"
+
+    def option_action(self, cmd_obj, arg):
+        cmd_obj.set_option("merge_hsdpa")
+
+
+class option_type(single_option):
+    def __init__(self):
+        single_option.__init__(self)
+        self.option_name = "type"
+        self.option_short = "t"
+        self.option_long = "type"
+        self.option_desc = "fsn or delay or both if not specified"
+        self.option_args = ["fsn", "delay"]
+
+    def option_action(self, cmd_obj, arg):
+        if arg == "":
+            print "Type doesn't specify, please try again"
+            sys.exit(1)
+        else:
+            cmd_obj.set_option(arg)
+
+
