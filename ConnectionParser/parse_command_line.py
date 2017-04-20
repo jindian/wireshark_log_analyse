@@ -62,6 +62,7 @@ class command_line:
                 cmd_opt_long = "--" + opt_long
                 if opt in (cmd_opt_short, cmd_opt_long):
                     obj.option_action(self, arg)
+                    break
 
         # Directory not specified
         if self.dir == '':
@@ -73,8 +74,8 @@ class command_line:
         if self.has_option("fsn") is False and self.has_option("delay") is False:
             self.set_option("fsn")
             self.set_option("delay")
-            print "{0:b}".format(self.option_bitmap)
 
+        print "{0:b}".format(self.option_bitmap)
         return
 
     def register_option(self, option_obj):
@@ -90,14 +91,16 @@ class command_line:
             if len(args_list) is 0:
                 options += option_short
                 long_options.append(option_long)
-                self.option_list_dict[obj.get_option_name()] = dict_index
-                dict_index += 1
+                if obj.do_add_option_bitmap() is True:
+                    self.option_list_dict[obj.get_option_name()] = dict_index
+                    dict_index += 1
             else:
                 options += (option_short + ":")
                 long_options.append(option_long + "=")
                 for arg in args_list:
-                    self.option_list_dict[arg] = dict_index
-                    dict_index +=1
+                    if obj.do_add_option_bitmap() is True:
+                        self.option_list_dict[arg] = dict_index
+                        dict_index +=1
 
         return options, long_options
 
@@ -137,6 +140,7 @@ class single_option:
         self.option_long = ""
         self.option_desc = ""
         self.option_args = []
+        self.option_bitmap_add = False
 
     def get_option_name(self):
         return self.option_name
@@ -146,6 +150,9 @@ class single_option:
 
     def get_option_args(self):
         return self.option_args
+
+    def do_add_option_bitmap(self):
+        return self.option_bitmap_add
 
     def option_action(self, cmd_obj, arg):
         return
@@ -171,9 +178,9 @@ class option_directory(single_option):
         self.option_short = "d"
         self.option_long = "directory"
         self.option_desc = "directory to analyze"
+        self.option_args = [""]
 
     def option_action(self, cmd_obj, arg):
-        print "option_action of directory: " + arg
         cmd_obj.set_dir(arg)
 
 
@@ -184,6 +191,7 @@ class option_fach_indicator(single_option):
         self.option_short = "f"
         self.option_long = "fach_indicator"
         self.option_desc = "find hsfach connections"
+        self.option_bitmap_add = True
 
     def option_action(self, cmd_obj, arg):
         cmd_obj.set_option("fach_indicator")
@@ -196,6 +204,7 @@ class option_merge_hsdpa(single_option):
         self.option_short = "m"
         self.option_long = "merge_hsdpa"
         self.option_desc = "merge all hsdpa data"
+        self.option_bitmap_add = True
 
     def option_action(self, cmd_obj, arg):
         cmd_obj.set_option("merge_hsdpa")
@@ -209,6 +218,7 @@ class option_type(single_option):
         self.option_long = "type"
         self.option_desc = "fsn or delay or both if not specified"
         self.option_args = ["fsn", "delay"]
+        self.option_bitmap_add = True
 
     def option_action(self, cmd_obj, arg):
         if arg == "":
