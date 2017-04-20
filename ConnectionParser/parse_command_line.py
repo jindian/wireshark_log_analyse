@@ -1,20 +1,6 @@
 import getopt
 import sys
 
-print_help = "frame_loss_and_delay_analyse.py -d <analyze_folder> [Options]\r\n" \
-             "Options:\r\n" \
-             "-h, --help\r\n" \
-             "       usage of this script\r\n" \
-             "-d, --directory\r\n" \
-             "       directory to analyze\r\n" \
-             "-t, --type\r\n" \
-             "       fsn or delay or both if not specified\r\n" \
-             "-f, --fach_indicator\r\n" \
-             "       find hsfach connections\r\n" \
-             "-m, --merge_hsdpa\r\n" \
-             "       merge all hsdpa data"
-
-
 """
 Class:
             command_line
@@ -37,8 +23,11 @@ class command_line:
         # It's possible option_list_dict and option_obj_list are not equal
         # because of argument of option exist
         self.option_list_dict = {}
+        # Be sure help object should be added to list ahead of others
         self.option_obj_list = []
         self.option_bitmap = 0
+        self.usage = "frame_loss_and_delay_analyse.py -d <analyze_folder> [Options]\r\n" \
+                     "Options:\r\n"
 
     def parse_input_parameter(self, argv):
         # generate options list to parse
@@ -46,13 +35,13 @@ class command_line:
 
         # Arguments not specified
         if len(argv) < 2:
-            self.option_obj_list[0].option_action(self, "")
+            self.option_obj_list[0].option_action(self, self.usage)
             sys.exit(1)
 
         try:
             opts, args = getopt.getopt(argv[1:], options, long_options)
         except getopt.GetoptError:
-            self.option_obj_list[0].option_action(self, "")
+            self.option_obj_list[0].option_action(self, self.usage)
             sys.exit(2)
 
         for opt, arg in opts:
@@ -61,13 +50,16 @@ class command_line:
                 cmd_opt_short = "-" + opt_short
                 cmd_opt_long = "--" + opt_long
                 if opt in (cmd_opt_short, cmd_opt_long):
-                    obj.option_action(self, arg)
+                    if obj.get_option_name() != "help":
+                        obj.option_action(self, arg)
+                    else:
+                        obj.option_action(self, self.usage)
                     break
 
         # Directory not specified
         if self.dir == '':
             print "Directory not specified, select a directory and try again!!\n\r"
-            self.option_obj_list[0].option_action(self, "")
+            self.option_obj_list[0].option_action(self, self.usage)
             sys.exit(3)
 
         # If option doesn't specify, check fsn and delay both by default
@@ -87,6 +79,8 @@ class command_line:
         dict_index = 0
         for obj in self.option_obj_list:
             option_short, option_long = obj.get_option()
+            self.usage += "-" + option_short + ", --" + option_long + "\r\n"
+            self.usage += "       " + obj.get_option_desc() + "\r\n"
             args_list = obj.get_option_args()
             if len(args_list) is 0:
                 options += option_short
@@ -148,6 +142,9 @@ class single_option:
     def get_option(self):
         return self.option_short, self.option_long
 
+    def get_option_desc(self):
+        return self.option_desc
+
     def get_option_args(self):
         return self.option_args
 
@@ -164,10 +161,10 @@ class option_help(single_option):
         self.option_name = "help"
         self.option_short = "h"
         self.option_long = "help"
-        self.option_desc = "usage of wireshark log analyse"
+        self.option_desc = "usage of our script"
 
     def option_action(self, cmd_obj, arg):
-        print print_help
+        print arg
         sys.exit(0)
 
 
